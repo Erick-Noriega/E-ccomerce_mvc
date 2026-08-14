@@ -21,7 +21,7 @@ namespace Tienda.Models
         [StringLength(50)]
         public string Contraseña { get; set; }
         public List<Pedido>? pedidos { get; set; }
-        public List<Producto>? productos { get; set; }
+
 
 
     }

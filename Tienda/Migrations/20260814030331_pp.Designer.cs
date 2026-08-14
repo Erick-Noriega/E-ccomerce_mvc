@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tienda.Data;
 
@@ -11,9 +12,11 @@ using Tienda.Data;
 namespace Tienda.Migrations
 {
     [DbContext(typeof(EccomerceDbContext))]
-    partial class EccomerceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260814030331_pp")]
+    partial class pp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -434,6 +437,9 @@ namespace Tienda.Migrations
                     b.Property<int>("CategoriaId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ClienteId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("ImagenUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -455,6 +461,8 @@ namespace Tienda.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
+
+                    b.HasIndex("ClienteId");
 
                     b.ToTable("Productos");
                 });
@@ -589,6 +597,10 @@ namespace Tienda.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Tienda.Models.Cliente", null)
+                        .WithMany("productos")
+                        .HasForeignKey("ClienteId");
+
                     b.Navigation("Categoria");
                 });
 
@@ -605,6 +617,8 @@ namespace Tienda.Migrations
             modelBuilder.Entity("Tienda.Models.Cliente", b =>
                 {
                     b.Navigation("pedidos");
+
+                    b.Navigation("productos");
                 });
 
             modelBuilder.Entity("Tienda.Models.Producto", b =>

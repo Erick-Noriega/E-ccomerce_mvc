@@ -10,6 +10,24 @@ builder.Services.AddDbContext<EccomerceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("EccomerceDbContext")));
 
 var app = builder.Build();
+//invocar la ejecución del DbSeeder con un using scops
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+    var context = services.GetRequiredService<EccomerceDbContext>();
+         DbSeeder.Seed(context); 
+    }
+    catch (Exception ex)
+    {
+        var logger= services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos.");   
+
+    }
+
+}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
