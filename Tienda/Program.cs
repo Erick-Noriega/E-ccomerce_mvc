@@ -1,7 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using Tienda.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<EccomerceDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EccomerceDbContext")));
 
 var app = builder.Build();
 
