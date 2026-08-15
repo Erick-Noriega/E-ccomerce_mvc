@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tienda.Models;
 using Tienda.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class ProductoController : Controller
 {
@@ -16,7 +17,8 @@ public class ProductoController : Controller
     // GET: PRODUCTOS
     public async Task<IActionResult> Index()    
     {
-        return View(await _context.Productos.ToListAsync());
+        return View(await _context.Productos.Include(c=>c.Categoria)
+            .ToListAsync());
     }
 
     // GET: PRODUCTOS/Details/5
@@ -40,6 +42,7 @@ public class ProductoController : Controller
     // GET: PRODUCTOS/Create
     public IActionResult Create()
     {
+        ViewBag.Categorias = new SelectList(_context.Categorias,"Id","Descripcion");
         return View();
     }
 
@@ -48,8 +51,7 @@ public class ProductoController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Precio,Nombre,NroProducto,ImagenUrl,Stock,Categoria,CategoriaId,ofertas,detalleCarrito")] Producto producto)
-    {
+    public async Task<IActionResult> Create(Producto producto) { 
         if (ModelState.IsValid)
         {
             _context.Add(producto);
