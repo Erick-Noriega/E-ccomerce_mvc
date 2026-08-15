@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tienda.Data;
 using Tienda.Models;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Tienda.Controllers
 {
@@ -19,15 +21,30 @@ namespace Tienda.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1,string txtbusqueda="",int categoriaId=0)
         {
             const int pageSize = 8;
             if (page < 1) page = 1;
 
-            var totalItems = await _context.Productos.CountAsync();
+            var consulta = _context.Productos.AsQueryable();
+            if (!string.IsNullOrEmpty(txtbusqueda))
+            {
+                consulta= consulta.Where(p => p.Nombre.Contains(txtbusqueda));
+            }
+            if (categoriaId > 0)
+            {
+                consulta = consulta.Where(c => c.CategoriaId == categoriaId);
+            }
+
+
+
+
+
+
+            var totalItems = await consulta.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            var productos = await _context.Productos
+            var productos = await consulta
                 .Include(p => p.Categoria)
                 .OrderBy(p => p.Id)
                 .Skip((page - 1) * pageSize)
@@ -38,6 +55,14 @@ namespace Tienda.Controllers
             ViewBag.PageSize = pageSize;
             ViewBag.TotalItems = totalItems;
             ViewBag.TotalPages = totalPages;
+            ViewBag.TxtBusqueda = txtbusqueda;
+            var categorias = await _context.Categorias.OrderBy(c => c.Descripcion).ToListAsync();
+            categorias.Insert(0, new Categoria { Id = 0, Descripcion = "Todos" });
+            ViewBag.CategoriaId = new SelectList
+                (
+                categorias,
+                "Id", "Descripcion", categoriaId
+                );
 
             return View(productos);
         }
